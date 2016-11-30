@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PO_CONFIG>
+	<!-- 
+	<DB_CONNECTION TYPE="mssql" VALID="TRUE">
+		<PROPERTY NAME="DB_DRIVER">com.microsoft.sqlserver.jdbc.SQLServerDriver</PROPERTY>
+		<PROPERTY NAME="DB_URL">jdbc:sqlserver://10.228.109.240:1433;instanceName=AUTOSYS-DB;databaseName=QVC;</PROPERTY>
+		<PROPERTY NAME="DB_USER">sa</PROPERTY>
+		<PROPERTY NAME="DB_PASSWORD">sa</PROPERTY>
+	</DB_CONNECTION>
+	
+	<DB_CONNECTION TYPE="oracle" VALID="TRUE">
+		<PROPERTY NAME="DB_DRIVER">oracle.jdbc.driver.OracleDriver</PROPERTY>
+		<PROPERTY NAME="DB_URL">jdbc:oracle:thin:@168.168.15.45:1521:BKMDB</PROPERTY>
+		<PROPERTY NAME="DB_USER">bkm2</PROPERTY>
+		<PROPERTY NAME="DB_PASSWORD">autosys</PROPERTY>
+	</DB_CONNECTION>
+	 -->
+	<DB_CONNECTION TYPE="oracle" VALID="TRUE">
+		<PROPERTY NAME="DB_DRIVER">com.mysql.jdbc.Driver</PROPERTY>
+		<PROPERTY NAME="DB_URL">jdbc:mysql://localhost:3306/science</PROPERTY>
+		<PROPERTY NAME="DB_USER">root</PROPERTY>
+		<PROPERTY NAME="DB_PASSWORD">workout</PROPERTY>
+	</DB_CONNECTION>
+
+	<PO_PACKAGE NAME="" />
+	<GEN_PO_PATH NAME="E:\StudyWorkspace\PO3WorkSpace\po3\src\test\java\com\sandrew\model" />
+	<TABLES PACKAGE="com.sandrew.model" IS_GENERATOR="TRUE">
+		<!-- <TABLE NAME="tm_vehicle" /> -->
+		<TABLE NAME="tt_test" />
+	</TABLES>
+</PO_CONFIG>

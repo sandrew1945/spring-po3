@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+		http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd"
+	default-lazy-init="true">
+
+	<!-- local connection and transaction -->
+	<!-- 
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName"><value>com.microsoft.sqlserver.jdbc.SQLServerDriver</value></property>
+		<property name="url"><value>jdbc:sqlserver://10.228.109.240:1433;instanceName=AUTOSYS-DB;databaseName=QVC;</value></property>
+		<property name="username"><value>sa</value></property>
+		<property name="password"><value>sa</value></property>
+	</bean>
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName"><value>oracle.jdbc.driver.OracleDriver</value></property>
+		<property name="url"><value>jdbc:oracle:thin:@java.test.server:1521:testdb</value></property>
+		<property name="username"><value>diss</value></property>
+		<property name="password"><value>workout</value></property>
+	</bean>
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName"><value>com.ibm.db2.jcc.DB2Driver</value></property>
+		<property name="url"><value>jdbc:db2://192.168.3.15:50000/DB2</value></property>
+		<property name="username"><value>administrator</value></property>
+		<property name="password"><value>123456</value></property>
+	</bean>
+	 -->
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName"><value>com.mysql.jdbc.Driver</value></property>
+		<property name="url"><value>jdbc:mysql://localhost:3306/science?characterEncoding=utf-8</value></property>
+		<property name="username"><value>root</value></property>
+		<property name="password"><value>workout</value></property>
+	</bean>	
+	<bean id="DbTxnManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+
+	<!-- app container connection and transaction
+	<jee:jndi-lookup id="jndiDataSource" jndi-name="jdbc/myis" />
+	 -->
+	
+	<!-- jta Transaction for websphere v4,v5,v6
+	<bean id="wsJtaTm" class="org.springframework.transaction.jta.WebSphereTransactionManagerFactoryBean"/>	
+	<bean id="JtaTxnManager" class="org.springframework.transaction.jta.JtaTransactionManager">
+		<property name="transactionManager" ref="wsJtaTm"/>
+	</bean>	
+	 -->
+	
+	<!-- for WebSphere
+	<bean id="nativeJdbcExtractor" class="org.springframework.jdbc.support.nativejdbc.WebSphereNativeJdbcExtractor" />
+	 -->
+	<!-- for Tomcat -->
+	<bean id="nativeJdbcExtractor" class="org.springframework.jdbc.support.nativejdbc.CommonsDbcpNativeJdbcExtractor" />
+	
+	
+	<!-- definitions here -->
+	<bean id="DBInfo" class="com.sandrew.po3.configure.DBConfigure">
+		<property name="defTxnMng"><value>DbTxnManager</value></property>
+		<!-- defTxnType:jdbc|managed -->
+		<property name="defTxnType"><value>managed</value></property>
+		<property name="defDataSource"><value>dataSource</value></property>
+		<property name="defJdbcExtractor" ref="nativeJdbcExtractor"></property>
+		<property name="defDBType"><value>mysql</value></property>
+	</bean>
+	
+	
+	<bean id="initSessionFactory" class="com.sandrew.po3.spring.SessionFactoryInitializingBean"></bean>
+	
+	<bean id="userManagerService" class="com.sandrew.po3.service.impl.ServiceImpl"></bean>
+	
+	
+	<!-- 配置事务的传播特性 -->
+	<tx:advice id="txAdvice" transaction-manager="DbTxnManager">
+		<tx:attributes>
+			<tx:method name="save*" propagation="REQUIRED" rollback-for="Exception" />
+			<tx:method name="commit*" propagation="REQUIRED" rollback-for="Exception" />
+			<tx:method name="add*" propagation="REQUIRED" rollback-for="Exception" />
+			<tx:method name="create*" propagation="REQUIRED" rollback-for="Exception" />
+			<tx:method name="insert*" propagation="REQUIRED" rollback-for="Exception" />
+			<tx:method name="update*" propagation="REQUIRED" rollback-for="Exception" />
+            <tx:method name="modify*" propagation="REQUIRED" rollback-for="Exception" />
+			<tx:method name="delete*" propagation="REQUIRED" rollback-for="Exception" />
+			<tx:method name="*" read-only="true" />
+		</tx:attributes>
+	</tx:advice>
+	<aop:config>
+		<aop:pointcut id="allServiceMethod" expression="execution(* com.sandrew.po3.service..*.*(..))" />
+		<aop:advisor pointcut-ref="allServiceMethod" advice-ref="txAdvice" />
+	</aop:config>
+</beans>
