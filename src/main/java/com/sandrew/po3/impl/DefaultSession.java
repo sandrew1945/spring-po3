@@ -947,6 +947,18 @@ public class DefaultSession implements Session
 			e.printStackTrace();
 			throw new POException(e.getMessage(), e);
 		}
+		finally
+		{
+			try
+			{
+				dbManager.cleanTxn();
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+				throw new POException(e.getMessage(), e);
+			}
+		}
 	}
 
 	/*
@@ -963,6 +975,18 @@ public class DefaultSession implements Session
 		{
 			e.printStackTrace();
 			throw new POException(e.getMessage(), e);
+		}
+		finally
+		{
+			try
+			{
+				dbManager.cleanTxn();
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+				throw new POException(e.getMessage(), e);
+			}
 		}
 	}
 

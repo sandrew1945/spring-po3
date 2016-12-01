@@ -28,14 +28,14 @@ public class SimpleDBManager extends AbstractDBManager
 	 */
 	public Connection getConnection() throws Exception
 	{
-		Connection conn = (Connection) get(dbName);
-		if (null == conn)
-		{
+//		Connection conn = (Connection) get(dbName);
+//		if (null == conn)
+//		{
 			DBUtil util = CommonDBUtilImpl.getInstance();
-			conn = util.getConnection();
+			Connection conn = util.getConnection();
 			conn.setAutoCommit(false);
-			set(dbName, conn);
-		}
+//			set(dbName, conn);
+//		}
 		return conn;
 	}
 	
@@ -61,4 +61,15 @@ public class SimpleDBManager extends AbstractDBManager
 	{
 		// do nothing!
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.sandrew.po3.db.AbstractDBManager#cleanTxn()
+	 */
+	public void cleanTxn() throws Exception
+	{
+		clean();
+	}
+	
+	
 }

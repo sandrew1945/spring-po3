@@ -92,6 +92,7 @@ public class DefaultClassMaker implements ClassMaker
 			case Types.LONGVARBINARY:
 				break;
 			case Types.LONGVARCHAR:
+				cls = String.class;
 				break;
 			case Types.NULL:
 				break;

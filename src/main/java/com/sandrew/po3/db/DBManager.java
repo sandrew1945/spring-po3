@@ -31,7 +31,7 @@ public interface DBManager
 	 * @param txnName
 	 * @param timeOut
 	 */
-	public void beginTxn() throws Exception;;
+	public void beginTxn() throws Exception;
 
 	/**
 	 * 
@@ -39,6 +39,14 @@ public interface DBManager
 	 * LastUpdate  : 2010-5-21
 	 * @param isCommit
 	 */
-	public void endTxn(boolean isCommit) throws Exception;;
+	public void endTxn(boolean isCommit) throws Exception;
+	
+	/**
+	 * 
+	 * Function    : 清空事务
+	 * LastUpdate  : 2016年12月1日
+	 * @throws Exception
+	 */
+	public void cleanTxn() throws Exception;
 
 }

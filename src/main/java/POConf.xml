@@ -23,9 +23,9 @@
 	</DB_CONNECTION>
 
 	<PO_PACKAGE NAME="" />
-	<GEN_PO_PATH NAME="E:\StudyWorkspace\PO3WorkSpace\po3\src\test\java\com\sandrew\model" />
-	<TABLES PACKAGE="com.sandrew.model" IS_GENERATOR="TRUE">
+	<GEN_PO_PATH NAME="E:\StudyWorkspace\PO3DemoWorkSpace\stes\stes-persistent\src\main\java\com\hexnology\stes\model" />
+	<TABLES PACKAGE="com.hexnology.stes.model" IS_GENERATOR="TRUE">
 		<!-- <TABLE NAME="tm_vehicle" /> -->
-		<TABLE NAME="tt_test" />
+		<TABLE NAME="tt_company_info" />
 	</TABLES>
 </PO_CONFIG>

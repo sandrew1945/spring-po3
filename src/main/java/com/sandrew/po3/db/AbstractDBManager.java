@@ -50,7 +50,7 @@ public abstract class AbstractDBManager implements DBManager
 		this.timeout = timeout;
 	}
 
-	private static ThreadLocal<HashMap<Object, Object>> localVar = new ThreadLocal<HashMap<Object, Object>>()
+	protected static ThreadLocal<HashMap<Object, Object>> localVar = new ThreadLocal<HashMap<Object, Object>>()
 	{
 		@Override
 		protected synchronized HashMap<Object, Object> initialValue()
@@ -120,22 +120,8 @@ public abstract class AbstractDBManager implements DBManager
 	 * Function    : 清除当前线程副本中所有数据
 	 * LastUpdate  : 2010-5-21
 	 */
-	protected void cleanTxn()
-	{
-		HashMap<Object, Object> map = localVar.get();
-		for (Object obj : map.values())
-		{
-			if (obj instanceof DefaultTransactionStatus)
-			{
-				DefaultTransactionStatus status = (DefaultTransactionStatus) obj;
-				if (!status.isCompleted())
-				{
-					throw new RuntimeException("clean Transaction Exception: Transaction " + obj + " close error!");
-				}
-			}
-		}
-		clean();
-	}
+	public abstract void cleanTxn() throws Exception;
+
 
 	/* (non-Javadoc)
 	 * @see com.sandrew.po3.db.DBManager#getConnection(java.lang.String, java.lang.String, int)

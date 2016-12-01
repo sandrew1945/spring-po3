@@ -1,6 +1,9 @@
 package com.sandrew.po3.db;
 
 import java.sql.Connection;
+import java.util.HashMap;
+
+import org.springframework.transaction.support.DefaultTransactionStatus;
 
 /**
  * Function    : 管理应用的Connection和Transaction
@@ -74,6 +77,25 @@ public class TransationDBManager extends AbstractDBManager
 	{
 		DBUtil util = CommonDBUtilImpl.getInstance();
 		util.closeTransaction(get(txnName), isCommit);
+	}
+
+
+	@Override
+	public void cleanTxn() throws Exception
+	{
+		HashMap<Object, Object> map = localVar.get();
+		for (Object obj : map.values())
+		{
+			if (obj instanceof DefaultTransactionStatus)
+			{
+				DefaultTransactionStatus status = (DefaultTransactionStatus) obj;
+				if (!status.isCompleted())
+				{
+					throw new RuntimeException("clean Transaction Exception: Transaction " + obj + " close error!");
+				}
+			}
+		}
+		clean();
 	}
 
 }
