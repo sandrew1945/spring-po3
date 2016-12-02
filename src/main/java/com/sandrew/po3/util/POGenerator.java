@@ -32,6 +32,7 @@ import java.text.MessageFormat;
 import java.util.Iterator;
 import java.util.List;
 
+import com.sandrew.po3.annotations.ColumnName;
 import com.sandrew.po3.db.DBConnection;
 import com.sandrew.po3.db.JdbcConnection;
 import com.sandrew.po3.gen.configure.Configure;
@@ -58,10 +59,10 @@ public class POGenerator
 			+ "import com.sandrew.po3.bean.PO;\n";
 
 	// 类的头部
-	private String classHead = "public class {0} extends PO\n" + "'{'" + "\n";
+	private String classHead = "@TableName(\"{0}\")\npublic class {1} extends PO\n" + "'{'" + "\n";
 
 	// 属性
-	private String attribute = "\tprivate {0} {1};\n";
+	private String attribute = "\t@ColumnName(value=\"{0}\", autoIncrement={1})\n\tprivate {2} {3};\n";
 
 	// getXXX方法
 	private String getMethod = "\tpublic {0} {1}()\n\t" + "'{'\n\t\t" + "return this.{2};" + "\n\t}\n";
@@ -151,7 +152,7 @@ public class POGenerator
 					impBlob = Constant.IMPORT_CLASS_YES;
 				}
 				// 遍历表中所有字段,获取PO的属性集合
-				attributes.append(MessageFormat.format(attribute, field.getFieldType().getSimpleName(), field.getAttributeName()));
+				attributes.append(MessageFormat.format(attribute, field.getFieldName(), field.isAutoIncrement(), field.getFieldType().getSimpleName(), field.getAttributeName()));
 				// 获取所有字段的setXXX和getXXX方法
 				methods.append(MessageFormat.format(getMethod, field.getFieldType().getSimpleName(), POUtil.getMethodOfGetByFieldName(field.getAttributeName()), field.getAttributeName()));
 				methods.append(MessageFormat.format(setMethod, POUtil.getMethodOfSetByFieldName(field.getAttributeName()), field.getFieldType().getSimpleName(), field.getAttributeName()));
@@ -159,7 +160,7 @@ public class POGenerator
 			// 生成包及引用
 			poFile.append(MessageFormat.format(packAndImp, conf.getPackageName(), impDate, impBlob, impClob)).append("\n");
 			// 生成Class头
-			poFile.append(MessageFormat.format(classHead, table.getPoName()));
+			poFile.append(MessageFormat.format(classHead, table.getTableName(), table.getPoName()));
 			// 生成属性
 			poFile.append(attributes.toString()).append("\n");
 			// 生成setXXX和getXXX方法

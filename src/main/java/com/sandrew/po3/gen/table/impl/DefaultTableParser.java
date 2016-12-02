@@ -135,6 +135,7 @@ public class DefaultTableParser implements TableParser
 			field.setFieldName(colName);
 			field.setAttributeName(POUtil.getAttributeNameByFieldName(colName));
 			field.setFieldType(cls);
+			field.setAutoIncrement(meta.isAutoIncrement(i));
 			list.add(field);
 		}
 		return list;

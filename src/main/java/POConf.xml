@@ -26,6 +26,6 @@
 	<GEN_PO_PATH NAME="E:\StudyWorkspace\PO3DemoWorkSpace\stes\stes-persistent\src\main\java\com\hexnology\stes\model" />
 	<TABLES PACKAGE="com.hexnology.stes.model" IS_GENERATOR="TRUE">
 		<!-- <TABLE NAME="tm_vehicle" /> -->
-		<TABLE NAME="tt_company_info" />
+		<TABLE NAME="tt_test" />
 	</TABLES>
 </PO_CONFIG>

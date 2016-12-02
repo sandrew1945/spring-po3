@@ -62,7 +62,7 @@
 	<bean id="DBInfo" class="com.sandrew.po3.configure.DBConfigure">
 		<property name="defTxnMng"><value>DbTxnManager</value></property>
 		<!-- defTxnType:jdbc|managed -->
-		<property name="defTxnType"><value>managed</value></property>
+		<property name="defTxnType"><value>jdbc</value></property>
 		<property name="defDataSource"><value>dataSource</value></property>
 		<property name="defJdbcExtractor" ref="nativeJdbcExtractor"></property>
 		<property name="defDBType"><value>mysql</value></property>

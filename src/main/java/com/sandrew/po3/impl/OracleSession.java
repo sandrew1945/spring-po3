@@ -25,7 +25,6 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.jdbc.support.nativejdbc.NativeJdbcExtractor;
 
-import com.sandrew.po3.db.DB2Manager;
 import com.sandrew.po3.db.DBManager;
 import com.sandrew.po3.exception.POException;
 import com.sandrew.po3.util.LobHandler;

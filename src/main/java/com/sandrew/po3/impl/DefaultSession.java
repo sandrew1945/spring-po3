@@ -306,7 +306,7 @@ public class DefaultSession implements Session
 		try
 		{
 			Connection conn = dbManager.getConnection();
-			ps = conn.prepareStatement(sql);
+			ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			if (null != params && params.size() > 0)
 			{
 				for (int i = 0; i < params.size(); i++)
@@ -314,7 +314,23 @@ public class DefaultSession implements Session
 					setParam(ps, i + 1, params.get(i));
 				}
 			}
-			return ps.executeUpdate();
+			int count = ps.executeUpdate();
+			
+			// TODO 这里需要处理主键赋值
+			ResultSet rs = ps.getGeneratedKeys();
+			ResultSetMetaData rsmd = rs.getMetaData();
+		      int columnCount = rsmd.getColumnCount();
+		      if (rs.next()) {
+		         do {
+		            for (int i=1; i<=columnCount; i++) {
+		               String key = rs.getString(i);
+		               System.out.println("KEY " + i + " = " + key);
+		            }
+		         } while(rs.next());
+		      }
+			
+			
+			return count;
 		}
 		catch (Exception e)
 		{
@@ -931,7 +947,7 @@ public class DefaultSession implements Session
 	{
 		throw new UnsupportedMethodException("不支持该方法");
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * @see com.sandrew.po3.Session#commit()

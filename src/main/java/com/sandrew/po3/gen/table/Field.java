@@ -33,6 +33,9 @@ public class Field
 
 	// PO的属性名
 	private String attributeName;
+	
+	// 是否自增字段
+	private boolean autoIncrement;
 
 	// 字段类型
 	private Class<?> fieldType;
@@ -65,6 +68,16 @@ public class Field
 	public void setAttributeName(String attributeName)
 	{
 		this.attributeName = attributeName;
+	}
+
+	public boolean isAutoIncrement()
+	{
+		return autoIncrement;
+	}
+
+	public void setAutoIncrement(boolean autoIncrement)
+	{
+		this.autoIncrement = autoIncrement;
 	}
 
 	/**
