@@ -56,7 +56,7 @@ public class POGenerator
 
 	// 类所引用的package
 	private String packAndImp = "package {0};\n\n" + "{1,choice,0#|1#import java.util.Date;\n}" + "{2,choice,0#|1#import java.sql.Blob;\n}" + "{3,choice,0#|1#import java.sql.Clob;\n}"
-			+ "import com.sandrew.po3.bean.PO;\n";
+			+ "import com.sandrew.po3.bean.PO;\nimport com.sandrew.po3.annotations.ColumnName;\nimport com.sandrew.po3.annotations.TableName;\n";
 
 	// 类的头部
 	private String classHead = "@TableName(\"{0}\")\npublic class {1} extends PO\n" + "'{'" + "\n";

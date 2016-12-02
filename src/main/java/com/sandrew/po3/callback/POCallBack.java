@@ -57,7 +57,8 @@ public class POCallBack<T extends PO> implements DAOCallback<T>
 			for (int i = 0; i < mapping.getColSize(); i++)
 			{
 				Object value = POUtil.getValue(rs, mapping.getColName(i), mapping.getColType(i));
-				POUtil.invokeSetMethodByField(po, POUtil.getAttributeNameByFieldName(mapping.getColName(i)), value);
+//				POUtil.invokeSetMethodByField(po, POUtil.getAttributeNameByFieldName(mapping.getColName(i)), value);
+				POUtil.invokeSetMethodByField(po, mapping.getPropertyName(i), value);
 			}
 			return po;
 		}

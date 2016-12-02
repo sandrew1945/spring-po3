@@ -25,10 +25,15 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.jdbc.support.nativejdbc.NativeJdbcExtractor;
 
+import com.sandrew.po3.bean.PO;
+import com.sandrew.po3.common.POMapping;
 import com.sandrew.po3.db.DBManager;
 import com.sandrew.po3.exception.POException;
+import com.sandrew.po3.sql.SqlCreator;
+import com.sandrew.po3.sql.impl.DefaultSqlCreatorImpl;
 import com.sandrew.po3.util.LobHandler;
 import com.sandrew.po3.util.OracleLobHandler;
+import com.sandrew.po3.util.POUtil;
 
 /**
  * Function    : 
@@ -71,6 +76,21 @@ public class OracleSession extends DefaultSession
 	public static OracleSession getInstance(DBManager dbManager, NativeJdbcExtractor extractor)
 	{
 		return new OracleSession(dbManager, extractor);
+	}
+
+	
+	
+	@Override
+	public int insert(PO po)
+	{
+		// 获取PO的POMapping
+		POMapping mapping = new POMapping(po);
+		// 获取SQL
+		SqlCreator creator = new DefaultSqlCreatorImpl();
+		String sql = creator.insertCreator(mapping, po);
+		// 封装参数List
+		List<Object> params = POUtil.encapParams(mapping, po);
+		return insert(sql, params);
 	}
 
 	/*

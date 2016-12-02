@@ -17,8 +17,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.security.PublicKey;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -38,6 +40,7 @@ import org.apache.log4j.Logger;
 import org.springframework.jdbc.support.nativejdbc.NativeJdbcExtractor;
 
 import com.sandrew.po3.Session;
+import com.sandrew.po3.annotations.ColumnName;
 import com.sandrew.po3.bean.PO;
 import com.sandrew.po3.bean.PageResult;
 import com.sandrew.po3.callback.DAOCallback;
@@ -306,6 +309,43 @@ public class DefaultSession implements Session
 		try
 		{
 			Connection conn = dbManager.getConnection();
+			ps = conn.prepareStatement(sql);
+			if (null != params && params.size() > 0)
+			{
+				for (int i = 0; i < params.size(); i++)
+				{
+					setParam(ps, i + 1, params.get(i));
+				}
+			}
+			return ps.executeUpdate();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			throw new POException("update error!");
+		}
+		finally
+		{
+			closeResultSetAndStatment(null, ps);
+		}
+	}
+
+	/**
+	 * 
+	 * Function    : MySql与SqlServer获取自动增长主键的插入方法，不适用于Oracle
+	 * LastUpdate  : 2016年12月2日
+	 * @param sql
+	 * @param params
+	 * @param po
+	 * @return
+	 */
+	private int insert(String sql, List<Object> params, PO po)
+	{
+		logger.debug("SQL =====>" + sql + " ; params:" + params);
+		PreparedStatement ps = null;
+		try
+		{
+			Connection conn = dbManager.getConnection();
 			ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			if (null != params && params.size() > 0)
 			{
@@ -316,20 +356,27 @@ public class DefaultSession implements Session
 			}
 			int count = ps.executeUpdate();
 			
-			// TODO 这里需要处理主键赋值
+			// 执行完insert操作，获取生成的键值并赋值到PO中
 			ResultSet rs = ps.getGeneratedKeys();
-			ResultSetMetaData rsmd = rs.getMetaData();
-		      int columnCount = rsmd.getColumnCount();
-		      if (rs.next()) {
-		         do {
-		            for (int i=1; i<=columnCount; i++) {
-		               String key = rs.getString(i);
-		               System.out.println("KEY " + i + " = " + key);
-		            }
-		         } while(rs.next());
-		      }
-			
-			
+			// 如果有自增键值
+			if (rs.next())
+			{
+				// 获取PO的全部字段，并将key值赋给自动增长列
+				Class<? extends PO> clz = po.getClass();
+				Field[] fields = clz.getDeclaredFields();
+				int columnIndex = 1;
+				for (int i = 0; i < fields.length; i++)
+				{
+					ColumnName columnName = fields[i].getAnnotation(ColumnName.class);
+					// 如果列为自增并且该列还未赋值，则将自增值保存到PO中
+					if ((true == columnName.autoIncrement()) && (null == POUtil.invokeGetMethodByField(po, fields[i].getName())))
+					{
+						int incrementKey = rs.getInt(columnIndex);
+						POUtil.invokeSetMethodByField(po, fields[i].getName(), incrementKey);
+						columnIndex++;
+					}
+				}
+			}
 			return count;
 		}
 		catch (Exception e)
@@ -365,7 +412,7 @@ public class DefaultSession implements Session
 		String sql = creator.insertCreator(mapping, po);
 		// 封装参数List
 		List<Object> params = POUtil.encapParams(mapping, po);
-		return insert(sql, params);
+		return insert(sql, params, po);
 	}
 
 	/*

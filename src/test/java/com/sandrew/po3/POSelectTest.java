@@ -1,14 +1,15 @@
 package com.sandrew.po3;
 
-import java.util.Date;
+import java.util.List;
 
 import org.junit.Test;
 
 import com.sandrew.model.TtTestPO;
+import com.sandrew.po3.callback.POCallBack;
 import com.sandrew.po3.db.CommonDBUtilImpl;
 import com.sandrew.po3.db.DBUtil;
 
-public class POInsertTest
+public class POSelectTest
 {
 
 	@Test
@@ -20,14 +21,13 @@ public class POInsertTest
 			dbu.initialize("classpath:**/DataAccessContext.xml");
 			Session session = SessionFactory.getInstance();
 			TtTestPO po = new TtTestPO();
-			po.setAge(new Integer(10));
-			po.setBirthday(new Date());
-			po.setName("test");
-			po.setWeight(new Double(100.2));
-			session.insert(po);
+			po.setAge(new Integer(123));
+			po.setName("ccccccc");
+			po.setWeight(new Double(13.54));
+			List<TtTestPO> list = session.select(po, new POCallBack<TtTestPO>(TtTestPO.class));
 			session.commit();
 			
-			System.out.println("id ------------------------:" + po.getId());
+			System.out.println("id ------------------------:" + list.size());
 		}
 		catch (Exception e)
 		{

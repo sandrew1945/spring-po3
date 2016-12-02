@@ -26,6 +26,8 @@ package com.sandrew.po3.common;
 import java.lang.reflect.Field;
 import java.util.LinkedList;
 
+import com.sandrew.po3.annotations.ColumnName;
+import com.sandrew.po3.annotations.TableName;
 import com.sandrew.po3.bean.PO;
 import com.sandrew.po3.util.POUtil;
 
@@ -42,6 +44,9 @@ public class POMapping
 
 	// 数据库表列名
 	private LinkedList<String> colNames = new LinkedList<String>();
+	
+	// PO字段名
+	private LinkedList<String> propertyNames = new LinkedList<String>();
 
 	// 数据库表列类型
 	private LinkedList<Class> colTypes = new LinkedList<Class>();
@@ -54,17 +59,38 @@ public class POMapping
 		clz = po.getClass();
 		// 获取PO类类名(不包含包)
 		String clzName = clz.getSimpleName();
-		// 通过类名解析表明
-		tableName = POUtil.getTabNameByPOName(clzName);
+		TableName tableNameAnn = clz.getAnnotation(TableName.class);
+		if (null != tableNameAnn && !"".equals(tableNameAnn.value()))
+		{
+			// 通过注解获取表名
+			tableName = tableNameAnn.value();
+		}
+		else
+		{
+			// 通过类名解析表名
+			tableName = POUtil.getTabNameByPOName(clzName);
+		}
 		// 获取PO的属性字段
 		Field[] field = clz.getDeclaredFields();
 		// 遍历field获取表列名及类型
+		ColumnName columnName = null;
 		for (int i = 0; i < field.length; i++)
 		{
-			// 根据属性字段名字解析表列名
+			String colName = null;
+			columnName = field[i].getAnnotation(ColumnName.class);
 			String fieldName = field[i].getName();
-			String colName = POUtil.getColNameByFieldName(fieldName);
+			if(null != columnName && !"".equals(columnName.value()))
+			{
+				// 通过注解获取表列名
+				colName = columnName.value();
+			}
+			else
+			{
+				// 根据属性字段名字解析表列名
+				colName = POUtil.getColNameByFieldName(fieldName);
+			}
 			colNames.add(colName);
+			propertyNames.add(fieldName);
 			// 根据属性字段名字解吸表列类型
 			Class<?> colType = field[i].getType();
 			colTypes.add(colType);
@@ -109,6 +135,11 @@ public class POMapping
 	public String getTableName()
 	{
 		return tableName;
+	}
+	
+	public String getPropertyName(int idx)
+	{
+		return propertyNames.get(idx);
 	}
 
 	/**
