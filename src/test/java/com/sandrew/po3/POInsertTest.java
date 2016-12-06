@@ -22,8 +22,8 @@ public class POInsertTest
 			TtTestPO po = new TtTestPO();
 			po.setAge(new Integer(10));
 			po.setBirthday(new Date());
-			po.setName("test");
-			po.setWeight(new Double(100.2));
+			po.setName("test2");
+			po.setWeight(new Double(200.2));
 			session.insert(po);
 			session.commit();
 			

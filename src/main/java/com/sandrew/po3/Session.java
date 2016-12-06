@@ -25,12 +25,12 @@ package com.sandrew.po3;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.sandrew.po3.bean.PO;
 import com.sandrew.po3.bean.PageResult;
 import com.sandrew.po3.callback.DAOCallback;
 import com.sandrew.po3.exception.POException;
+import com.sandrew.po3.exception.TooManyResultsException;
 import com.sandrew.po3.util.Parameters;
 
 /**
@@ -149,6 +149,17 @@ public interface Session
 
 	/**
 	 * 
+	 * Function    : 返回一条查询结果
+	 * LastUpdate  : 2016年12月6日
+	 * @param sql
+	 * @param params
+	 * @return
+	 * @throws POException
+	 */
+	public HashMap<String, Object> selectOne(String sql, List<Object> params) throws POException;
+
+	/**
+	 * 
 	 * Function    : 通过PO的select操作
 	 * LastUpdate  : 2010-9-13
 	 * @param po		PO对象
@@ -156,6 +167,17 @@ public interface Session
 	 * @throws POException
 	 */
 	public List<HashMap<String, Object>> select(PO po) throws POException;
+
+	/**
+	 * 
+	 * Function    : 返回一条查询结果
+	 * LastUpdate  : 2016年12月6日
+	 * @param po
+	 * @return
+	 * @throws POException
+	 * @throws TooManyResultsException
+	 */
+	public HashMap<String, Object> selectOne(PO po) throws POException;
 
 	/**
 	 * 
@@ -184,6 +206,19 @@ public interface Session
 
 	/**
 	 * 
+	 * Function    : 返回一条查询结果
+	 * LastUpdate  : 2016年12月6日
+	 * @param sql
+	 * @param params
+	 * @param callback
+	 * @return
+	 * @throws POException
+	 * @throws TooManyResultsException
+	 */
+	public <T> T selectOne(String sql, List<Object> params, DAOCallback<T> callback) throws POException;
+
+	/**
+	 * 
 	 * Function    : 通过PO的select操作
 	 * LastUpdate  : 2010-9-13
 	 * @param <T>
@@ -194,6 +229,17 @@ public interface Session
 	 */
 	public <T> List<T> select(PO po, DAOCallback<T> callback) throws POException;
 
+	/**
+	 * 
+	 * Function    : 返回一条查询结果
+	 * LastUpdate  : 2016年12月6日
+	 * @param po
+	 * @param callback
+	 * @return
+	 * @throws POException
+	 */
+	public <T> T selectOne(PO po, DAOCallback<T> callback) throws POException;
+	
 	/**
 	 * 
 	 * Function    : 通过PO的排序select操作
@@ -222,20 +268,6 @@ public interface Session
 	 * @throws POException
 	 */
 	public <T> PageResult<T> pageQuery(String sql, List<Object> params, DAOCallback<T> callback, int pageSize, int curPage) throws POException;
-
-	/**
-	 * 
-	 * Function    : 分页查询操作(无CallBack)
-	 * LastUpdate  : 2010-10-2
-	 * @param <T>
-	 * @param sql
-	 * @param params
-	 * @param pageSize
-	 * @param curPage
-	 * @return
-	 * @throws POException
-	 */
-	public PageResult<HashMap<String, Object>> pageQuery(String sql, List<Object> params, int pageSize, int curPage, String filePath, boolean download) throws POException;
 
 	/**
 	 * 

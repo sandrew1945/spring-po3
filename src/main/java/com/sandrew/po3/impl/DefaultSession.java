@@ -20,7 +20,6 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.security.PublicKey;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -48,11 +47,10 @@ import com.sandrew.po3.common.POMapping;
 import com.sandrew.po3.common.POTypes;
 import com.sandrew.po3.db.DBManager;
 import com.sandrew.po3.exception.POException;
-import com.sandrew.po3.exception.UnsupportedMethodException;
+import com.sandrew.po3.exception.TooManyResultsException;
 import com.sandrew.po3.sql.SqlCreator;
 import com.sandrew.po3.sql.impl.DefaultSqlCreatorImpl;
 import com.sandrew.po3.util.Constant;
-import com.sandrew.po3.util.LobHandler;
 import com.sandrew.po3.util.POUtil;
 import com.sandrew.po3.util.Parameters;
 
@@ -65,7 +63,7 @@ import oracle.sql.BLOB;
  * CreateDate  : 2010-5-21
  * @version    :
  */
-public class DefaultSession implements Session
+public abstract class DefaultSession implements Session
 {
 
 	protected DBManager dbManager = null;
@@ -89,20 +87,6 @@ public class DefaultSession implements Session
 	public DefaultSession()
 	{
 
-	}
-
-	/**
-	 * 
-	 * Function    : 实例化方法
-	 * LastUpdate  : 2010-5-21
-	 * @param dbName
-	 * @param txnName
-	 * @param timeout
-	 * @return
-	 */
-	public static DefaultSession getInstance(DBManager dbManager, NativeJdbcExtractor extractor)
-	{
-		return new DefaultSession(dbManager, extractor);
 	}
 
 	/* (non-Javadoc)
@@ -254,26 +238,17 @@ public class DefaultSession implements Session
 	/* (non-Javadoc)
 	 * @see com.autosys.po3.Session#getIntegerPK(java.lang.String)
 	 */
-	public Integer getIntegerPK(String sequenceName)
-	{
-		return new Integer(getStringPK(sequenceName));
-	}
+	public abstract Integer getIntegerPK(String sequenceName) throws POException;
 
 	/* (non-Javadoc)
 	 * @see com.autosys.po3.Session#getLongPK(java.lang.String)
 	 */
-	public Long getLongPK(String sequenceName)
-	{
-		return new Long(getStringPK(sequenceName));
-	}
+	public abstract Long getLongPK(String sequenceName) throws POException;
 
 	/* (non-Javadoc)
 	 * @see com.autosys.po3.Session#getStringPK(java.lang.String)
 	 */
-	public String getStringPK(String sequenceName)
-	{
-		return getPK(sequenceName).toString();
-	}
+	public abstract String getStringPK(String sequenceName) throws POException;
 
 	/**
 	 * 
@@ -282,7 +257,7 @@ public class DefaultSession implements Session
 	 * @param sequenceName
 	 * @return	   : Object
 	 */
-	private Object getPK(String sequenceName)
+	protected Object getPK(String sequenceName) throws POException
 	{
 		Object seqNext = null;
 		StringBuilder sql = new StringBuilder();
@@ -339,7 +314,7 @@ public class DefaultSession implements Session
 	 * @param po
 	 * @return
 	 */
-	private int insert(String sql, List<Object> params, PO po)
+	private int insert(String sql, List<Object> params, PO po) throws POException
 	{
 		logger.debug("SQL =====>" + sql + " ; params:" + params);
 		PreparedStatement ps = null;
@@ -355,7 +330,7 @@ public class DefaultSession implements Session
 				}
 			}
 			int count = ps.executeUpdate();
-			
+
 			// 执行完insert操作，获取生成的键值并赋值到PO中
 			ResultSet rs = ps.getGeneratedKeys();
 			// 如果有自增键值
@@ -394,10 +369,7 @@ public class DefaultSession implements Session
 	 * (non-Javadoc)
 	 * @see com.autosys.po3.Session#insertForLob(java.lang.String, java.util.List)
 	 */
-	public int insertForLob(String sql, List<Object> params)
-	{
-		throw new UnsupportedMethodException("不支持该方法");
-	}
+	public abstract int insertForLob(String sql, List<Object> params);
 
 	/*
 	 * (non-Javadoc)
@@ -461,242 +433,7 @@ public class DefaultSession implements Session
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see com.autosys.po3.Session#pageQuery(java.lang.String)
-	 */
-	/*
-	public <T> PageResult<T> pageQuery(String sql, List<Object> params, DAOCallback<T> callback, int pageSize, int curPage) throws DAOException
-	{
-		long totalS = System.currentTimeMillis();
-		logger.debug("SQL =====>" + sql + " ; params:" + params);
-		PageResult<T> ps = new PageResult<T>();
-		ps.setCurPage(curPage);
-		ps.setPageSize(pageSize);
-		// 根据SQL设置总记录数
-		long countS = System.currentTimeMillis();
-		ps.setTotalRecords(18321);
-		long countE = System.currentTimeMillis();
-		logger.debug("PO3 TMP LOG COUNT COST =====>" +(countE - countS));
-		// 根据每页的记录条数及总记录数设置分页情况
-	//		StringBuilder sb = new StringBuilder();
-	//		sb.append("SELECT * FROM (");
-	//		sb.append("SELECT A.* ,ROWNUM R FROM (");
-	//		sb.append(sql);
-	//		sb.append(" ) A WHERE ROWNUM <= ? ");
-	//		sb.append(") B WHERE R > ?");
-		
-		
-		StringBuilder sb= new StringBuilder();
-		sb.append("SELECT * FROM (SELECT A.* ,ROWNUM R FROM (select besi_part_id,\n" );
-		sb.append("       parts_no,\n" );
-		sb.append("       parts_name,\n" );
-		sb.append("       is_imp,\n" );
-		sb.append("       is_buyer,\n" );
-		sb.append("       buyer_code,\n" );
-		sb.append("       buyer_name,\n" );
-		sb.append("       bussiness_code,\n" );
-		sb.append("       is_supplier,\n" );
-		sb.append("       supplier_code,\n" );
-		sb.append("       supplier_name,\n" );
-		sb.append("       is_partgroup,\n" );
-		sb.append("       is_capacity,\n" );
-		sb.append("       car_type,\n" );
-		sb.append("       sy_factory,\n" );
-		sb.append("       cc_factory\n" );
-		sb.append("  from (\n" );
-		sb.append("\n" );
-		sb.append("        select tbp.besi_part_id, --主零件Id\n" );
-		sb.append("                tbp.parts_no, --零件号\n" );
-		sb.append("                tbp.parts_name, --零件名称\n" );
-		sb.append("                (case\n" );
-		sb.append("                  when tvp.v_parts_id is not null and tvp.status=10021001 then\n" );
-		sb.append("                   1\n" );
-		sb.append("                  else\n" );
-		sb.append("                   0\n" );
-		sb.append("                end) as is_imp, --是否是重点件\n" );
-		sb.append("                (case\n" );
-		sb.append("                  when buyer.user_id is not null and buyer.user_stat=10011001 then                   1\n" );
-		sb.append("                  else\n" );
-		sb.append("                   0\n" );
-		sb.append("                end) is_buyer, --是否分配采购员\n" );
-		sb.append("                buyer.user_code as buyer_code, --采购员Code\n" );
-		sb.append("                buyer.user_name as buyer_name, --采购员名称\n" );
-		sb.append("                buyer.bussiness_code as bussiness_code, --采购员代码\n" );
-		sb.append("                (case\n" );
-		sb.append("                  when vender.user_id is not null and vender.user_stat=10011001 then\n" );
-		sb.append("                   1\n" );
-		sb.append("                  else\n" );
-		sb.append("                   0\n" );
-		sb.append("                end) is_supplier, --是否分配供应商\n" );
-		sb.append("                vender.user_code as supplier_code, --供应商代码\n" );
-		sb.append("                vender.user_name as supplier_name, --供应商名称\n" );
-		sb.append("                (case\n" );
-		sb.append("                  when f.cc is not null and f.is_delete=10021001 then\n" );
-		sb.append("                   1\n" );
-		sb.append("                  else\n" );
-		sb.append("                   0\n" );
-		sb.append("                end) is_partgroup, --是否分配零件组\n" );
-		sb.append("                (case\n" );
-		sb.append("                  when f.cc is null then\n" );
-		sb.append("                   0\n" );
-		sb.append("                  when f.cc = 0 then\n" );
-		sb.append("                   0\n" );
-		sb.append("                  when f.cc = 1 and f.is_delete=10021001 then\n" );
-		sb.append("                   1\n" );
-		sb.append("                end) is_capacity, --是否维护能力\n" );
-		sb.append("                d.car_type, --车型\n" );
-		sb.append("                e.sy_factory, --使用工厂\n" );
-		sb.append("                e.cc_factory --筹措工厂\n" );
-		sb.append("          from (SELECT * FROM TM_BESI_PARTS WHERE status=10011001) tbp\n" );
-		sb.append("          left join TM_V_PARTS tvp\n" );
-		sb.append("            on tbp.besi_part_id = tvp.besi_part_id\n" );
-		sb.append("          left join (select byr.besi_part_id,\n" );
-		sb.append("                            byr.user_code,\n" );
-		sb.append("                            byr.user_name,\n" );
-		sb.append("                            byr.user_id,\n" );
-		sb.append("                            byr.user_stat,\n" );
-		sb.append("                            tbc.bussiness_code\n" );
-		sb.append("                       from (select trbp.besi_part_id,\n" );
-		sb.append("                                    btu.user_code,\n" );
-		sb.append("                                    btu.user_name,\n" );
-		sb.append("                                    btu.user_id,\n" );
-		sb.append("                                    btu.user_stat,\n" );
-		sb.append("                                    btu.bussiness_code\n" );
-		sb.append("                               from TR_BUYER_PARTS trbp\n" );
-		sb.append("                              inner join TM_USER btu\n" );
-		sb.append("                                 on trbp.user_id = btu.user_id and btu.user_stat=10011001) byr\n" );
-		sb.append("                      left join tm_bussiness_code tbc\n" );
-		sb.append("                         on byr.bussiness_code = tbc.bussiness_code_id) buyer\n" );
-		sb.append("            on tbp.besi_part_id = buyer.besi_part_id\n" );
-		sb.append("          left join (select tpv.besi_part_id,\n" );
-		sb.append("                            vtu.user_id,\n" );
-		sb.append("                            vtu.user_code,\n" );
-		sb.append("                            vtu.user_name,\n" );
-		sb.append("                            vtu.user_stat                       from TR_PART_VENDOR tpv\n" );
-		sb.append("                      inner join TM_USER vtu\n" );
-		sb.append("                         on tpv.user_id = vtu.user_id and vtu.user_stat=10011001) vender\n" );
-		sb.append("            on tbp.besi_part_id = vender.besi_part_id\n" );
-		sb.append("          left join (select tpgd.besi_part_id,\n" );
-		sb.append("                            (case\n" );
-		sb.append("                              when tpgd.capacity > 0 then\n" );
-		sb.append("                               1\n" );
-		sb.append("                              else\n" );
-		sb.append("                               0\n" );
-		sb.append("                            end) cc,\n" );
-		sb.append("                            tpg.is_delete                       from TT_PARTS_GROUP_DETAIL tpgd\n" );
-		sb.append("                      inner join TT_PARTS_GROUP tpg\n" );
-		sb.append("                         on tpgd.part_group_id = tpg.parts_group_id and tpg.is_delete=10021002 ) f\n" );
-		sb.append("            on tbp.besi_part_id = f.besi_part_id\n" );
-		sb.append("          left join M_VIEW_CAR_TYPE d\n" );
-		sb.append("            on tbp.besi_part_id = d.besipartid\n" );
-		sb.append("          left join M_VIEW_FACTORY e\n" );
-		sb.append("            on tbp.besi_part_id = e.besi_part_id)\n" );
-		sb.append(" where 1 = 1 ) A WHERE ROWNUM <= ? ) B WHERE R > ?");
-	
-		
-		
-		
-		
-		if (null == params)
-		{
-			params = new ArrayList<Object>();
-		}
-		// 设置分页SQL的参数
-		params.add(new Integer(curPage * pageSize));
-		params.add(new Integer((curPage - 1) * pageSize));
-		long recordS = System.currentTimeMillis();
-		List<T> records = select(sb.toString(), params, callback);
-		long recordE = System.currentTimeMillis();
-		logger.debug("PO3 TMP LOG RECORD COST =====>" +(recordE - recordS));
-		ps.setRecords(records);
-		// 获取总页数
-		// 算法	总记录数 / 每页大小 + 如果 总记录数 % 每页大小 为 0 则 + 0 否则 + 1
-		if (pageSize == 0)
-		{
-			throw new DAOException("pageSize can't be zero");
-		}
-		int pageCount = ps.getTotalRecords() / pageSize + (ps.getTotalRecords() % pageSize == 0 ? 0 : 1);
-		ps.setTotalPages(pageCount);
-		long totalE = System.currentTimeMillis();
-		logger.debug("PO3 TMP LOG TOTAL COST =====>" +(totalE - totalS));
-		return ps;
-	}
-	*/
-
-	public <T> PageResult<T> pageQuery(String sql, List<Object> params, DAOCallback<T> callback, int pageSize, int curPage) throws POException
-	{
-		logger.debug("SQL =====>" + sql + " ; params:" + params);
-		PageResult<T> ps = new PageResult<T>();
-		ps.setCurPage(curPage);
-		ps.setPageSize(pageSize);
-		ps.setTotalRecords(count(sql, params));
-		// 根据SQL设置总记录数
-		// 根据每页的记录条数及总记录数设置分页情况
-		StringBuilder sb = new StringBuilder();
-		sb.append("SELECT * FROM (");
-		sb.append("SELECT A.* ,ROWNUM R FROM (");
-		sb.append(sql);
-		sb.append(" ) A WHERE ROWNUM <= ? ");
-		sb.append(") B WHERE R > ?");
-		if (null == params)
-		{
-			params = new ArrayList<Object>();
-		}
-		// 设置分页SQL的参数
-		params.add(new Integer(curPage * pageSize));
-		params.add(new Integer((curPage - 1) * pageSize));
-		List<T> records = select(sb.toString(), params, callback);
-		ps.setRecords(records);
-		// 获取总页数
-		// 算法	总记录数 / 每页大小 + 如果 总记录数 % 每页大小 为 0 则 + 0 否则 + 1
-		if (pageSize == 0)
-		{
-			throw new POException("pageSize can't be zero");
-		}
-		int pageCount = ps.getTotalRecords() / pageSize + (ps.getTotalRecords() % pageSize == 0 ? 0 : 1);
-		ps.setTotalPages(pageCount);
-		long totalE = System.currentTimeMillis();
-		return ps;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see com.autosys.po3.Session#pageQuery(java.lang.String, java.util.List, int, int)
-	 */
-	public PageResult<HashMap<String, Object>> pageQuery(String sql, List<Object> params, int pageSize, int curPage, String filePath, boolean download) throws POException
-	{
-		logger.debug("SQL =====>" + sql + " ; params:" + params);
-		PageResult<HashMap<String, Object>> ps = new PageResult<HashMap<String, Object>>();
-		ps.setCurPage(curPage);
-		ps.setPageSize(pageSize);
-		// 根据SQL设置总记录数
-		ps.setTotalRecords(count(sql, params));
-		// 根据每页的记录条数及总记录数设置分页情况
-		StringBuilder sb = new StringBuilder();
-		sb.append("SELECT * FROM (");
-		sb.append("SELECT A.* ,ROWNUM R FROM (");
-		sb.append(sql);
-		sb.append(" ) A WHERE ROWNUM <= ? ");
-		sb.append(") B WHERE R > ?");
-		if (null == params)
-		{
-			params = new ArrayList<Object>();
-		}
-		// 设置分页SQL的参数
-		params.add(new Integer(curPage * pageSize));
-		params.add(new Integer((curPage - 1) * pageSize));
-		List<HashMap<String, Object>> records = selectForLob(sb.toString(), params, filePath, download);
-		ps.setRecords(records);
-		// 获取总页数
-		// 算法	总记录数 / 每页大小 + 如果 总记录数 % 每页大小 为 0 则 + 0 否则 + 1
-		if (pageSize == 0)
-		{
-			throw new POException("pageSize can't be zero");
-		}
-		int pageCount = ps.getTotalRecords() / pageSize + (ps.getTotalRecords() % pageSize == 0 ? 0 : 1);
-		ps.setTotalPages(pageCount);
-		return ps;
-	}
+	public abstract <T> PageResult<T> pageQuery(String sql, List<Object> params, DAOCallback<T> callback, int pageSize, int curPage) throws POException;
 
 	/* 
 	 *  查询,返回结果为以列名为Key的HashMap
@@ -730,94 +467,8 @@ public class DefaultSession implements Session
 				HashMap<String, Object> result = new HashMap<String, Object>();
 				for (int i = 1; i <= columnCounts; i++)
 				{
-					// TODO Fix by weibin 2011-12-26 support other column type 
-					//result.put(rsmd.getColumnName(i), rs.getString(i));
+					// Fix by weibin 2011-12-26 support other column type 
 					result.put(rsmd.getColumnName(i), getValueByType(rs, i, rsmd.getColumnType(i)));
-				}
-				results.add((HashMap<String, Object>) result);
-			}
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-			throw new POException("update error!");
-		}
-		finally
-		{
-			closeResultSetAndStatment(rs, ps);
-		}
-		return results;
-	}
-
-	/**
-	 * 
-	 * Function    : 支持BLOB的查询(临时使用,需要完善)
-	 * LastUpdate  : 2010-10-2
-	 * @param sql
-	 * @param params
-	 * @return
-	 * @throws POException
-	 */
-	private List<HashMap<String, Object>> selectForLob(String sql, List<Object> params, String filePath, boolean download) throws POException
-	{
-		logger.debug("SQL =====>" + sql + " ; params:" + params);
-		ResultSet rs = null;
-		PreparedStatement ps = null;
-		List<HashMap<String, Object>> results = null;
-		try
-		{
-			Connection conn = dbManager.getConnection();
-			ps = conn.prepareStatement(sql);
-			// 如果设置参数,设置查询参数
-			if (null != params && params.size() > 0)
-			{
-				for (int i = 0; i < params.size(); i++)
-				{
-					setParam(ps, i + 1, params.get(i));
-				}
-			}
-			rs = ps.executeQuery();
-			results = new ArrayList<HashMap<String, Object>>();
-			ResultSetMetaData rsmd = rs.getMetaData();
-			int columnCounts = rsmd.getColumnCount();
-			while (rs.next())
-			{
-				HashMap<String, Object> result = new HashMap<String, Object>();
-				for (int i = 1; i <= columnCounts; i++)
-				{
-					// 如果此字段为BLOB,则存储一个A连接
-					if (rsmd.getColumnTypeName(i).equals("BLOB"))
-					{
-						if (download)
-						{
-							BLOB blob = (BLOB) rs.getBlob(i);
-							BufferedInputStream in = new BufferedInputStream(blob.getBinaryStream());
-							File f = new File(filePath);
-							if (!f.exists())
-							{
-								f.mkdirs();
-							}
-							FileOutputStream out = new FileOutputStream(filePath + File.separator + blob.toString());
-							byte[] temp = new byte[1024];
-							int c = -1;
-							while ((c = in.read(temp)) != -1)
-							{
-								out.write(temp, 0, c);
-							}
-							out.flush();
-							out.close();
-							in.close();
-							result.put(rsmd.getColumnName(i), "<a href='../../tempDoc/" + blob.toString() + "'>[" + rsmd.getColumnName(i) + "]</a>");
-						}
-						else
-						{
-							result.put(rsmd.getColumnName(i), rsmd.getColumnName(i));
-						}
-					}
-					else
-					{
-						result.put(rsmd.getColumnName(i), rs.getString(i));
-					}
 				}
 				results.add((HashMap<String, Object>) result);
 			}
@@ -836,6 +487,23 @@ public class DefaultSession implements Session
 
 	/*
 	 * (non-Javadoc)
+	 * @see com.sandrew.po3.Session#selectOne(java.lang.String, java.util.List)
+	 */
+	public HashMap<String, Object> selectOne(String sql, List<Object> params) throws POException
+	{
+		try
+		{
+			List<HashMap<String, Object>> list = select(sql, params);
+			return handleListResult(list);
+		}
+		catch (Exception e)
+		{
+			throw new POException(e.getMessage(), e);
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
 	 * @see com.autosys.po3.Session#select(com.autosys.po3.bean.PO)
 	 */
 	public List<HashMap<String, Object>> select(PO po) throws POException
@@ -847,6 +515,19 @@ public class DefaultSession implements Session
 		String sql = creator.selectCreator(mapping, po);
 		List<Object> params = POUtil.encapParams(mapping, po);
 		return select(sql, params);
+	}
+
+	public HashMap<String, Object> selectOne(PO po) throws POException
+	{
+		try
+		{
+			List<HashMap<String, Object>> list = select(po);
+			return handleListResult(list);
+		}
+		catch (Exception e)
+		{
+			throw new POException(e.getMessage(), e);
+		}
 	}
 
 	/*
@@ -904,6 +585,24 @@ public class DefaultSession implements Session
 		}
 		return list;
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see com.sandrew.po3.Session#selectOne(java.lang.String, java.util.List, com.sandrew.po3.callback.DAOCallback)
+	 */
+	public <T> T selectOne(String sql, List<Object> params, DAOCallback<T> callback) throws POException
+	{
+		try
+		{
+			List<T> list = select(sql, params, callback);
+			return handleListResult(list);
+		}
+		catch (Exception e)
+		{
+			throw new POException(e.getMessage(), e);
+		}
+
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -918,6 +617,24 @@ public class DefaultSession implements Session
 		String sql = creator.selectCreator(mapping, po);
 		List<Object> params = POUtil.encapParams(mapping, po);
 		return select(sql, params, callback);
+	}
+	
+	
+	/*
+	 * (non-Javadoc)
+	 * @see com.sandrew.po3.Session#selectOne(com.sandrew.po3.bean.PO, com.sandrew.po3.callback.DAOCallback)
+	 */
+	public <T> T selectOne(PO po, DAOCallback<T> callback) throws POException
+	{
+		try
+		{
+			List<T> list = select(po, callback);
+			return handleListResult(list);
+		}
+		catch (Exception e)
+		{
+			throw new POException(e.getMessage(), e);
+		}
 	}
 
 	/*
@@ -990,10 +707,7 @@ public class DefaultSession implements Session
 	 * (non-Javadoc)
 	 * @see com.autosys.po3.Session#updateForLob(java.lang.String, java.util.List)
 	 */
-	public int updateForLob(String sql, List<Object> params) throws POException
-	{
-		throw new UnsupportedMethodException("不支持该方法");
-	}
+	public abstract int updateForLob(String sql, List<Object> params) throws POException;
 
 	/*
 	 * (non-Javadoc)
@@ -1124,33 +838,6 @@ public class DefaultSession implements Session
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see com.autosys.po3.Session#getPrimaryByTabName(java.lang.String)
-	 */
-	/*
-	private List<String> getPrimaryByTabName(String tabName) throws DAOException
-	{
-		Connection conn;
-		List<String> primaryKeys = null;
-		try
-		{
-			conn = DBManager.getConnection(dbName, txnName, timeout);
-			DatabaseMetaData dmd = conn.getMetaData();
-			ResultSet rs = dmd.getPrimaryKeys(null, null, "TM_DO_PRI");
-			primaryKeys = new ArrayList<String>();
-			while (rs.next())
-			{
-				primaryKeys.add(rs.getString("COLUMN_NAME"));
-			}
-			return primaryKeys;
-		}
-		catch (Exception e)
-		{
-			throw new DAOException("get Primary Key error!", e);
-		}
-	}
-	*/
 	/**
 	 * 
 	 * Function    : 关闭ResultSet,Statement
@@ -1245,65 +932,6 @@ public class DefaultSession implements Session
 		}
 	}
 
-	private void setParamForLob(PreparedStatement ps, int idx, Object obj, LobHandler handler) throws IOException, Exception
-	{
-		try
-		{
-			if (obj instanceof java.util.Date)
-			{
-				ps.setTimestamp(idx, new Timestamp(((java.util.Date) obj).getTime()));
-				return;
-			}
-			if (obj instanceof InputStream)
-			{
-				InputStream is = (InputStream) obj;
-				handler.setBlobAsBinaryStream(ps, idx, is, is.available());
-				return;
-			}
-			if (obj instanceof java.sql.Clob)
-			{
-				ps.setClob(idx, (java.sql.Clob) obj);
-				return;
-			}
-			if (obj instanceof java.math.BigDecimal)
-			{
-				ps.setBigDecimal(idx, (java.math.BigDecimal) obj);
-				return;
-			}
-			if (obj instanceof java.math.BigInteger)
-			{
-				ps.setBigDecimal(idx, new BigDecimal((BigInteger) obj));
-				return;
-			}
-			if (obj instanceof java.lang.Boolean)
-			{
-				ps.setInt(idx, (Boolean) obj ? 0 : 1);
-				return;
-			}
-			if (obj instanceof java.lang.Integer)
-			{
-				ps.setInt(idx, ((Integer) obj).intValue());
-				return;
-			}
-			if (obj instanceof java.lang.Long)
-			{
-				ps.setLong(idx, ((Long) obj).longValue());
-				return;
-			}
-			if (obj instanceof java.lang.String)
-			{
-				ps.setString(idx, obj.toString());
-				return;
-			}
-			ps.setObject(idx, obj);
-		}
-		catch (SQLException e)
-		{
-			logger.error("ps set params error!", e);
-			throw new POException("ps set params error!", e);
-		}
-	}
-
 	/**
 	 * 
 	 * Function    : 获取查询的记录数
@@ -1313,17 +941,17 @@ public class DefaultSession implements Session
 	 * @return
 	 * @throws POException
 	 */
-	private int count(String sql, List<Object> params) throws POException
+	protected int count(String sql, List<Object> params) throws POException
 	{
 		int count = 0;
-		sql = "Select COUNT(*) as COUNT FROM (" + sql + ")";
+		sql = "Select COUNT(*) as COUNT FROM (" + sql + ") AS POT";
 		logger.info("SQL===>" + sql + ",params===>" + params);
 		try
 		{
 			List<HashMap<String, Object>> list = select(sql, params);
 			if (null != list && list.size() > 0)
 			{
-				count = Integer.valueOf((String) list.get(0).get("COUNT")).intValue();
+				count = Integer.valueOf(list.get(0).get("COUNT").toString()).intValue();
 			}
 			return count;
 		}
@@ -1557,6 +1185,33 @@ public class DefaultSession implements Session
 	private boolean hasParametersHead(String paramters)
 	{
 		return paramters.startsWith(Constant.PROD_FUNC_PARAMS_PREFIX + "?");
+	}
+	
+	/**
+	 * 
+	 * Function    : 处理只有一条数据的集合，获取集合中数据，如果有多条则抛出异常
+	 * LastUpdate  : 2016年12月6日
+	 * @param list
+	 * @return
+	 * @throws TooManyResultsException
+	 */
+	private <T> T handleListResult(List<T> list) throws TooManyResultsException
+	{
+		if (null != list)
+		{
+			if (list.size() == 1)
+			{
+				return list.get(0);
+			}
+			else
+			{
+				throw new TooManyResultsException("过多的结果集");
+			}
+		}
+		else
+		{
+			return null;
+		}
 	}
 
 	/**

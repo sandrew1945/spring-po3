@@ -33,7 +33,9 @@ import com.sandrew.po3.db.SimpleDBManager;
 import com.sandrew.po3.db.TransationDBManager;
 import com.sandrew.po3.exception.POException;
 import com.sandrew.po3.impl.DefaultSession;
+import com.sandrew.po3.impl.MySqlSession;
 import com.sandrew.po3.impl.OracleSession;
+import com.sandrew.po3.impl.SqlServerSession;
 import com.sandrew.po3.util.Constant;
 
 /**
@@ -84,11 +86,11 @@ public class SessionFactory
 		}
 		else if (Constant.DATABASE_TYPE_MSSQL.equalsIgnoreCase(dbType))
 		{
-			return DefaultSession.getInstance(dbManager, extractor);
+			return SqlServerSession.getInstance(dbManager, extractor);
 		}
 		else if (Constant.DATABASE_TYPE_MYSQL.equalsIgnoreCase(dbType))
 		{
-			return DefaultSession.getInstance(dbManager, extractor);
+			return MySqlSession.getInstance(dbManager, extractor);
 		}
 		else
 		{
