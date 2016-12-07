@@ -22,7 +22,7 @@ public class SqlSelectTest
 			Session session = SessionFactory.getInstance();
 			StringBuilder sql = new StringBuilder();
 			sql.append("select\n");
-			sql.append("role_id, role_code, role_name, role_type, role_status, create_by, create_date, update_by, update_date\n");
+			sql.append("role_id, role_code, role_name, role_type, role_status, is_delete, create_date\n");
 			sql.append("from tm_role\n");
 			sql.append("where 1 = 1\n");
 			
@@ -30,6 +30,10 @@ public class SqlSelectTest
 			session.commit();
 			
 			System.out.println("id ------------------------:" + list.size());
+			for (TmRolePO tmRolePO : list)
+			{
+				System.out.println("role =======" + tmRolePO);
+			}
 		}
 		catch (Exception e)
 		{
