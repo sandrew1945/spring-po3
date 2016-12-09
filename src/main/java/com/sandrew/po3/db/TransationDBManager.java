@@ -3,6 +3,8 @@ package com.sandrew.po3.db;
 import java.sql.Connection;
 import java.util.HashMap;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.support.DefaultTransactionStatus;
 
 /**
@@ -13,7 +15,7 @@ import org.springframework.transaction.support.DefaultTransactionStatus;
  */
 public class TransationDBManager extends AbstractDBManager
 {
-	
+	private static final Log logger = LogFactory.getLog(TransationDBManager.class);
 
 	public TransationDBManager(String dbName, String txnName, int timeout)
 	{
@@ -65,6 +67,7 @@ public class TransationDBManager extends AbstractDBManager
 			obj = util.getTransaction(txnName, timeout);
 			set(txnName, obj);
 		}
+		logger.debug("Begin Transation.");
 	}
 
 	/**
@@ -77,6 +80,7 @@ public class TransationDBManager extends AbstractDBManager
 	{
 		DBUtil util = CommonDBUtilImpl.getInstance();
 		util.closeTransaction(get(txnName), isCommit);
+		logger.debug("End Transation.");
 	}
 
 
@@ -96,6 +100,7 @@ public class TransationDBManager extends AbstractDBManager
 			}
 		}
 		clean();
+		logger.debug("Clean Transation.");
 	}
 
 }

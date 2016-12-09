@@ -16,16 +16,11 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionReader;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.jdbc.support.nativejdbc.NativeJdbcExtractor;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -45,14 +40,12 @@ import com.sandrew.po3.util.Constant;
 public class CommonDBUtilImpl implements DBUtil
 {
 
-	private static Logger logger = LogManager.getLogger(CommonDBUtilImpl.class);
+	private static final Log logger = LogFactory.getLog(CommonDBUtilImpl.class);
 
 	private DBConfigure dbConf = null;
 
 	private static DBUtil dbUtil = new CommonDBUtilImpl();
 
-	private BeanFactory springBeanFactory = null;
-	
 	private ApplicationContext context = null;
 
 	// add 2011-9-15

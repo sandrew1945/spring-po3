@@ -23,6 +23,8 @@
 
 package com.sandrew.po3.spring;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -39,15 +41,19 @@ import com.sandrew.po3.db.DBUtil;
 public class SessionFactoryInitializingBean implements ApplicationListener<ContextRefreshedEvent>
 {
 	private static ApplicationContext applicationContext = null;
+	
+	private static final Log logger = LogFactory.getLog(SessionFactoryInitializingBean.class);
 
 
 	public void onApplicationEvent(ContextRefreshedEvent event)
 	{
 		if(null == applicationContext)
 		{
+			logger.info("PO3 Start Initialize.");
 			applicationContext = event.getApplicationContext();
 			DBUtil dbu = CommonDBUtilImpl.getInstance();
 			dbu.initialize(applicationContext);
+			logger.info("PO3 Initialize Completed.");
 		}
 
 	}

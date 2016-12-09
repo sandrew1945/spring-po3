@@ -14,8 +14,8 @@ package com.sandrew.po3.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.support.nativejdbc.NativeJdbcExtractor;
 
 import com.sandrew.po3.bean.PageResult;
@@ -33,7 +33,7 @@ import com.sandrew.po3.exception.UnsupportedMethodException;
 public class MySqlSession extends DefaultSession
 {
 
-	private static Logger logger = LogManager.getLogger(MySqlSession.class);
+	private static final Log logger = LogFactory.getLog(MySqlSession.class);
 
 	protected DBManager dbManager = null;
 

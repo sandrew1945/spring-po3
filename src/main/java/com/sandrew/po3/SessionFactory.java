@@ -23,7 +23,8 @@
 
 package com.sandrew.po3;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.support.nativejdbc.NativeJdbcExtractor;
 
 import com.sandrew.po3.db.CommonDBUtilImpl;
@@ -32,7 +33,6 @@ import com.sandrew.po3.db.DBUtil;
 import com.sandrew.po3.db.SimpleDBManager;
 import com.sandrew.po3.db.TransationDBManager;
 import com.sandrew.po3.exception.POException;
-import com.sandrew.po3.impl.DefaultSession;
 import com.sandrew.po3.impl.MySqlSession;
 import com.sandrew.po3.impl.OracleSession;
 import com.sandrew.po3.impl.SqlServerSession;
@@ -47,7 +47,7 @@ import com.sandrew.po3.util.Constant;
 public class SessionFactory
 {
 
-	private static Logger logger = Logger.getLogger(SessionFactory.class);
+	private static final Log logger = LogFactory.getLog(SessionFactory.class);
 
 	/**
 	 * 创建无参的POFactory对象，所有的参数均采用系统默认配置。

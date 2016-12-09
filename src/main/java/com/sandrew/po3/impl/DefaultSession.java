@@ -13,8 +13,6 @@ package com.sandrew.po3.impl;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -34,8 +32,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.support.nativejdbc.NativeJdbcExtractor;
 
 import com.sandrew.po3.Session;
@@ -70,7 +68,7 @@ public abstract class DefaultSession implements Session
 
 	protected NativeJdbcExtractor nativeJdbcExtractor;
 
-	private static Logger logger = LogManager.getLogger(DefaultSession.class);
+	private static final Log logger = LogFactory.getLog(DefaultSession.class);
 
 	/**
 	 *  构造器

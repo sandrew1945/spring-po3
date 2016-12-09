@@ -26,6 +26,8 @@ package com.sandrew.po3.db;
 import java.sql.Connection;
 import java.util.HashMap;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.support.DefaultTransactionStatus;
 
 /**
@@ -42,6 +44,8 @@ public abstract class AbstractDBManager implements DBManager
 	protected String txnName = null;
 
 	protected int timeout = -1;
+	
+	private static final Log logger = LogFactory.getLog(AbstractDBManager.class);
 	
 	protected AbstractDBManager(String dbName, String txnName, int timeout)
 	{
@@ -93,6 +97,7 @@ public abstract class AbstractDBManager implements DBManager
 	protected void clean()
 	{
 		localVar.get().clear();
+		logger.debug("Clean Current Thread Connection And Transation.");
 	}
 
 	/**
