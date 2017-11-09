@@ -103,7 +103,7 @@
 		<artifactId>ojdbc14</artifactId>
 		<version>${oracle.driver.version}</version>
 		<scope>system</scope>
-		<systemPath>E:\maven_local_repository\com\oracle\ojdbc14\10.2.0.4.0\ojdbc14-10.2.0.4.0.jar</systemPath>
+		<systemPath>D:\Maven\maven_local_repository\com\oracle\ojdbc14\10.2.0.4.0\ojdbc14-10.2.0.4.0.jar</systemPath>
 	</dependency>
 	<!-- DB管理 end -->
 	<dependency>
