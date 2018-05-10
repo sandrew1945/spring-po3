@@ -12,7 +12,7 @@ public class SpringInitTest
 	@Test
 	public void test()
 	{
-		ApplicationContext ctx = new ClassPathXmlApplicationContext("/DataAccessContext.xml");
+		ApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:**/DataAccessContext.xml");
 		IService service = (IService) ctx.getBean("userManagerService");
 		try
 		{

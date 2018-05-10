@@ -1,13 +1,12 @@
 package com.sandrew.po3;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Test;
-
 import com.sandrew.po3.db.CommonDBUtilImpl;
 import com.sandrew.po3.db.DBUtil;
 import com.sandrew.po3.util.Parameters;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BatchInsertTest
 {

@@ -1,13 +1,12 @@
 package com.sandrew.po3;
 
-import java.util.List;
-
-import org.junit.Test;
-
 import com.sandrew.model.TtTestPO;
 import com.sandrew.po3.callback.POCallBack;
 import com.sandrew.po3.db.CommonDBUtilImpl;
 import com.sandrew.po3.db.DBUtil;
+import org.junit.Test;
+
+import java.util.List;
 
 public class POSelectTest
 {

@@ -16,7 +16,7 @@ public class Test
 	public static void main(String[] args)
 	{
 		DBUtil dbu = CommonDBUtilImpl.getInstance();
-		dbu.initialize("/DataAccessContext.xml");
+		dbu.initialize("DataAccessContext.xml");
 
 	}
 }
