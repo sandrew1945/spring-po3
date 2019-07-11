@@ -23,16 +23,6 @@
 
 package com.sandrew.po3.util;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.text.MessageFormat;
-import java.util.Iterator;
-import java.util.List;
-
-import com.sandrew.po3.annotations.ColumnName;
 import com.sandrew.po3.db.DBConnection;
 import com.sandrew.po3.db.JdbcConnection;
 import com.sandrew.po3.gen.configure.Configure;
@@ -42,6 +32,11 @@ import com.sandrew.po3.gen.table.Field;
 import com.sandrew.po3.gen.table.Table;
 import com.sandrew.po3.gen.table.TableParser;
 import com.sandrew.po3.gen.table.impl.DefaultTableParser;
+
+import java.io.*;
+import java.text.MessageFormat;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Function    : 
@@ -80,8 +75,7 @@ public class POGenerator
 	 * 
 	 * Function    : 生成PO类
 	 * LastUpdate  : 2010-4-30
-	 * @param databaseType
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	private void gen() throws Exception
 	{

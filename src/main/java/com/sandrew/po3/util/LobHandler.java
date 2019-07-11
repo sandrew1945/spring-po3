@@ -47,7 +47,6 @@ public interface LobHandler
 	 * 
 	 * Function    : 释放Lob对象
 	 * LastUpdate  : 2011-12-21
-	 * @param lob
 	 * @throws Exception
 	 */
 	public void releaseLobs() throws Exception;
@@ -68,7 +67,6 @@ public interface LobHandler
 	 * 
 	 * Function    : 用字符填充CLOB
 	 * LastUpdate  : 2011-12-21
-	 * @param con
 	 * @param ps
 	 * @param paramIndex
 	 * @param characterStream
